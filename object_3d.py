@@ -53,13 +53,16 @@ class Object3D:
 
         for index, color_face in enumerate(self.color_faces):
             color, face = color_face
-            polygon = vertices[face]
-            if not any_func(polygon, self.render.H_WIDTH, self.render.H_HEIGHT):
-                pg.draw.polygon(self.render.screen, color, polygon, 1)
-                if self.label:
-                    text = self.font.render(
-                        self.label[index], True, pg.Color('white'))
-                    self.render.screen.blit(text, polygon[-1])
+            try:
+                polygon = vertices[face]
+                if not any_func(polygon, self.render.H_WIDTH, self.render.H_HEIGHT):
+                    pg.draw.polygon(self.render.screen, color, polygon, 1)
+                    if self.label:
+                        text = self.font.render(
+                            self.label[index], True, pg.Color('white'))
+                        self.render.screen.blit(text, polygon[-1])
+            except:
+                pass
 
         if self.draw_vertices:
             for vertex in vertices:

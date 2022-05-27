@@ -28,12 +28,12 @@ class Camera:
         self.v_fov = self.h_fov * (render.HEIGHT / render.WIDTH)
         self.near_plane = 0.1
         self.far_plane = 100
-        self.moving_speed = getValue("MOVING_SPEED")
-        self.rotation_speed = getValue("ROTATION_SPEED")
+        self.moving_speed = get_value("MOVING_SPEED")
+        self.rotation_speed = get_value("ROTATION_SPEED")
 
     def control(self):
-        self.moving_speed = getValue("MOVING_SPEED")
-        self.rotation_speed = getValue("ROTATION_SPEED")
+        self.moving_speed = get_value("MOVING_SPEED")
+        self.rotation_speed = get_value("ROTATION_SPEED")
         key = pg.key.get_pressed()
         if key[pg.K_r]:
             self.pos = [-5, 5, -50, 1]

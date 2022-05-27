@@ -15,28 +15,39 @@
 from configparser import ConfigParser
 from os import path, mkdir
 
+cparser = ConfigParser()
+cparser.read(path.join("./resources/", "config.ini"))
+
 try:
-    cparser = ConfigParser()
-    cparser.read(path.join("./resources/", "config.ini"))
     MOVING_SPEED_RATE = float(cparser["SAVED"]["MOVING_SPEED"])
-    ROTATION_SPEED_RATE = float(cparser["SAVED"]["ROTATION_SPEED"])
-    BACKGROUND_COLOR = str(cparser["SAVED"]["BACKGROUND_COLOR"])
 except:
     MOVING_SPEED_RATE = 0.5
+try:
+    ROTATION_SPEED_RATE = float(cparser["SAVED"]["ROTATION_SPEED"])
+except:
     ROTATION_SPEED_RATE = 0.015
-    BACKGROUND_COLOR = "#013636"
+try:
+    BACKGROUND_COLOR = str(cparser["SAVED"]["BACKGROUND_COLOR"])
+except:
+    BACKGROUND_COLOR = "#000000"
+try:
+    FILE = str(cparser["SAVED"]["FILE"])
+except:
+    FILE = "resources/Tank.obj"
 
 
-def getValue(key):
+def get_value(key):
     if key == "MOVING_SPEED":
         return MOVING_SPEED_RATE
     if key == "ROTATION_SPEED":
         return ROTATION_SPEED_RATE
     if key == "BACKGROUND_COLOR":
         return BACKGROUND_COLOR
+    if key == "FILE":
+        return FILE
 
 
-def setValue(key, value):
+def set_value(key, value):
     if key == "MOVING_SPEED":
         global MOVING_SPEED_RATE
         MOVING_SPEED_RATE = float(value)
@@ -46,6 +57,9 @@ def setValue(key, value):
     if key == "BACKGROUND_COLOR":
         global BACKGROUND_COLOR
         BACKGROUND_COLOR = str(value)
+    if key == "FILE":
+        global FILE
+        FILE = str(value)
     try:
         f_path = path.join("./resources/", "config.ini")
         if not path.isdir("./resources/"):
@@ -55,6 +69,7 @@ def setValue(key, value):
         f.write("MOVING_SPEED={}\n".format(MOVING_SPEED_RATE))
         f.write("ROTATION_SPEED={}\n".format(ROTATION_SPEED_RATE))
         f.write("BACKGROUND_COLOR={}\n".format(BACKGROUND_COLOR))
+        f.write("FILE={}\n".format(FILE))
         f.close()
     except:
         pass

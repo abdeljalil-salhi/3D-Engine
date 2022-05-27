@@ -1,0 +1,14 @@
+{
+  "defaults": {
+    "colours": {
+      "normal_bg": "#000000",
+      "dark_bg": "#000000"
+    }
+  },
+  "button": {
+    "colours": {
+      "hovered_bg": "#15191e",
+      "active_bg": "#15191e"
+    }
+  }
+}
