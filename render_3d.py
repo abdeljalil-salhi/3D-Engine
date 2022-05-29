@@ -20,8 +20,6 @@ from constants import *
 import pygame as pg
 import pygame_gui as pgg
 
-from os import path
-from configparser import ConfigParser
 from pygame_gui.core.utility import create_resource_path
 from screeninfo import get_monitors
 
@@ -35,6 +33,7 @@ class SoftwareRender:
         for index in range(0, len(monitors)):
             monitor = monitors[index]
             if monitor.is_primary:
+                self.monitor = monitor
                 self.RESOLUTION = self.WIDTH, self.HEIGHT = (
                     monitor.width - 200), (monitor.height - 200)
 
@@ -43,10 +42,17 @@ class SoftwareRender:
         self.file_dialog = None
         self.show_options = False
         self.is_running = True
+        self.is_fullscreen = get_value("FULLSCREEN")
         self.fonts = []
 
-        self.screen = pg.display.set_mode(self.RESOLUTION, pg.RESIZABLE)
-        self.manager = pgg.UIManager(self.RESOLUTION, "resources/theme.json")
+        if self.is_fullscreen == "False":
+            self.screen = pg.display.set_mode(self.RESOLUTION, pg.RESIZABLE)
+            self.manager = pgg.UIManager(
+                self.RESOLUTION, "resources/theme.json")
+        elif self.is_fullscreen == "True":
+            self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+            self.manager = pgg.UIManager(
+                (self.monitor.width, self.monitor.height), "resources/theme.json")
         self.clock = pg.time.Clock()
 
         self.create_objects()
@@ -118,6 +124,8 @@ class SoftwareRender:
         self.rotation_speed_entry.set_text(
             str(get_value("ROTATION_SPEED")))
 
+        self.fullscreen_button = pgg.elements.UIButton(relative_rect=pg.Rect(
+            (w - 250, h - 60), (250, 30)), text="Toggle Full Screen", manager=self.manager, visible=0)
         self.load_button = pgg.elements.UIButton(relative_rect=pg.Rect(
             (w - 250, h - 30), (250, 30)), text="Load 3D File", manager=self.manager, visible=0)
 
@@ -132,6 +140,7 @@ class SoftwareRender:
             self.moving_speed_entry.show()
             self.rotation_speed_label.show()
             self.rotation_speed_entry.show()
+            self.fullscreen_button.show()
             self.load_button.show()
         else:
             self.applyOptions()
@@ -140,6 +149,7 @@ class SoftwareRender:
             self.moving_speed_entry.hide()
             self.rotation_speed_label.hide()
             self.rotation_speed_entry.hide()
+            self.fullscreen_button.hide()
             self.load_button.hide()
 
     def draw(self):
@@ -174,17 +184,36 @@ class SoftwareRender:
                         self.show_options = not self.show_options
                         self.toggle_options()
 
-                if event.type == pg.KEYUP:
-                    if event.key == pg.K_o:
-                        self.show_options = not self.show_options
-                        self.toggle_options()
-
-                if event.type == pgg.UI_BUTTON_PRESSED:
                     if event.ui_element == self.load_button:
                         self.file_dialog = pgg.windows.UIFileDialog(pg.Rect(
                             160, 50, 440, 500), self.manager, window_title="Load 3D Object (.obj)",
                             initial_file_path="./resources/", allow_existing_files_only=True)
                         self.load_button.disable()
+
+                    if event.ui_element == self.fullscreen_button:
+                        print(self.is_fullscreen)
+                        if self.is_fullscreen == "False":
+                            self.screen = pg.display.set_mode(
+                                (0, 0), pg.FULLSCREEN)
+                            self.manager = pgg.UIManager(
+                                (self.monitor.width, self.monitor.height), "resources/theme.json")
+                            set_value("FULLSCREEN", "True")
+                            self.is_fullscreen = "True"
+                        elif self.is_fullscreen == "True":
+                            self.screen = pg.display.set_mode(
+                                self.RESOLUTION, pg.RESIZABLE)
+                            self.manager = pgg.UIManager(
+                                (self.RESOLUTION), "resources/theme.json")
+                            set_value("FULLSCREEN", "False")
+                            self.is_fullscreen = "False"
+                        self.show_options = False
+                        self.file_dialog = None
+                        self.create_layout()
+
+                if event.type == pg.KEYUP:
+                    if event.key == pg.K_o:
+                        self.show_options = not self.show_options
+                        self.toggle_options()
 
                 if event.type == pgg.UI_FILE_DIALOG_PATH_PICKED:
                     f_path = create_resource_path(event.text)
@@ -203,7 +232,3 @@ class SoftwareRender:
             self.clock.tick(self.FPS)
 
             pg.display.flip()
-
-
-app = SoftwareRender()
-app.run()

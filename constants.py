@@ -34,6 +34,10 @@ try:
     FILE = str(cparser["SAVED"]["FILE"])
 except:
     FILE = "resources/Tank.obj"
+try:
+    FULLSCREEN = cparser["SAVED"]["FULLSCREEN"]
+except:
+    FULLSCREEN = "False"
 
 
 def get_value(key):
@@ -45,6 +49,8 @@ def get_value(key):
         return BACKGROUND_COLOR
     if key == "FILE":
         return FILE
+    if key == "FULLSCREEN":
+        return FULLSCREEN
 
 
 def set_value(key, value):
@@ -60,6 +66,9 @@ def set_value(key, value):
     if key == "FILE":
         global FILE
         FILE = str(value)
+    if key == "FULLSCREEN":
+        global FULLSCREEN
+        FULLSCREEN = value
     try:
         f_path = path.join("./resources/", "config.ini")
         if not path.isdir("./resources/"):
@@ -70,6 +79,7 @@ def set_value(key, value):
         f.write("ROTATION_SPEED={}\n".format(ROTATION_SPEED_RATE))
         f.write("BACKGROUND_COLOR={}\n".format(BACKGROUND_COLOR))
         f.write("FILE={}\n".format(FILE))
+        f.write("FULLSCREEN={}\n".format(FULLSCREEN))
         f.close()
     except:
         pass
