@@ -38,6 +38,14 @@ try:
     FULLSCREEN = cparser["SAVED"]["FULLSCREEN"]
 except:
     FULLSCREEN = "False"
+try:
+    MOVEMENT_FLAG = cparser["SAVED"]["MOVEMENT_FLAG"]
+except:
+    MOVEMENT_FLAG = "True"
+try:
+    DRAW_VERTICES = cparser["SAVED"]["DRAW_VERTICES"]
+except:
+    DRAW_VERTICES = "True"
 
 
 def get_value(key):
@@ -51,6 +59,10 @@ def get_value(key):
         return FILE
     if key == "FULLSCREEN":
         return FULLSCREEN
+    if key == "MOVEMENT_FLAG":
+        return MOVEMENT_FLAG
+    if key == "DRAW_VERTICES":
+        return DRAW_VERTICES
 
 
 def set_value(key, value):
@@ -69,6 +81,12 @@ def set_value(key, value):
     if key == "FULLSCREEN":
         global FULLSCREEN
         FULLSCREEN = value
+    if key == "MOVEMENT_FLAG":
+        global MOVEMENT_FLAG
+        MOVEMENT_FLAG = value
+    if key == "DRAW_VERTICES":
+        global DRAW_VERTICES
+        DRAW_VERTICES = value
     try:
         f_path = path.join("./resources/", "config.ini")
         if not path.isdir("./resources/"):
@@ -80,6 +98,8 @@ def set_value(key, value):
         f.write("BACKGROUND_COLOR={}\n".format(BACKGROUND_COLOR))
         f.write("FILE={}\n".format(FILE))
         f.write("FULLSCREEN={}\n".format(FULLSCREEN))
+        f.write("MOVEMENT_FLAG={}\n".format(MOVEMENT_FLAG))
+        f.write("DRAW_VERTICES={}\n".format(DRAW_VERTICES))
         f.close()
     except:
         pass

@@ -25,7 +25,9 @@ from screeninfo import get_monitors
 
 
 class SoftwareRender:
+
     def __init__(self):
+
         pg.init()
         pg.display.set_caption("3D Engine")
 
@@ -39,11 +41,16 @@ class SoftwareRender:
 
         self.H_WIDTH, self.H_HEIGHT = self.WIDTH // 2, self.HEIGHT // 2
         self.FPS = 120
-        self.file_dialog = None
         self.show_options = False
         self.is_running = True
         self.is_fullscreen = get_value("FULLSCREEN")
         self.fonts = []
+
+        self.file_dialog = None
+        self.enable_movement_flag = None
+        self.disable_movement_flag = None
+        self.enable_draw_vertices = None
+        self.disable_draw_vertices = None
 
         if self.is_fullscreen == "False":
             self.screen = pg.display.set_mode(self.RESOLUTION, pg.RESIZABLE)
@@ -53,12 +60,14 @@ class SoftwareRender:
             self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
             self.manager = pgg.UIManager(
                 (self.monitor.width, self.monitor.height), "resources/theme.json")
+
         self.clock = pg.time.Clock()
 
         self.create_objects()
         self.create_layout()
 
     def create_fonts(self, font_sizes):
+
         for size in font_sizes:
             try:
                 self.fonts.append(pg.font.Font(
@@ -69,21 +78,27 @@ class SoftwareRender:
         return self.fonts
 
     def render(self, font, text, color, pos):
+
         text_to_show = font.render(text, 0, pg.Color(color))
         self.screen.blit(text_to_show, pos)
 
     def display_fps(self):
+
         self.render(self.fonts[1], text=str(
             int(self.clock.get_fps())) + " FPS", color="red", pos=(5, 0))
 
     def create_objects(self):
+
         self.camera = Camera(self, [-5, 5, -50])
         self.projection = Projection(self)
+
         self.object = self.get_object_from_file(str(get_value("FILE")))
 
     def get_object_from_file(self, filename):
+
         try:
             vertice, faces = [], []
+
             with open(filename) as f:
                 for line in f:
                     if line.startswith("v "):
@@ -99,6 +114,7 @@ class SoftwareRender:
             print("error")
 
     def create_layout(self):
+
         w, h = pg.display.get_surface().get_size()
 
         self.options = pgg.elements.UIButton(relative_rect=pg.Rect(
@@ -124,17 +140,34 @@ class SoftwareRender:
         self.rotation_speed_entry.set_text(
             str(get_value("ROTATION_SPEED")))
 
+        if get_value("MOVEMENT_FLAG") == "False":
+            self.enable_movement_flag = pgg.elements.UIButton(relative_rect=pg.Rect(
+                (w - 250, 155), (250, 30)), text="Enable Movement Flag", manager=self.manager, visible=0)
+        else:
+            self.disable_movement_flag = pgg.elements.UIButton(relative_rect=pg.Rect(
+                (w - 250, 155), (250, 30)), text="Disable Movement Flag", manager=self.manager, visible=0)
+
+        if get_value("DRAW_VERTICES") == "False":
+            self.enable_draw_vertices = pgg.elements.UIButton(relative_rect=pg.Rect(
+                (w - 250, 185), (250, 30)), text="Enable Draw Vertices", manager=self.manager, visible=0)
+        else:
+            self.disable_draw_vertices = pgg.elements.UIButton(relative_rect=pg.Rect(
+                (w - 250, 185), (250, 30)), text="Disable Draw Vertices", manager=self.manager, visible=0)
+
         self.fullscreen_button = pgg.elements.UIButton(relative_rect=pg.Rect(
             (w - 250, h - 60), (250, 30)), text="Toggle Full Screen", manager=self.manager, visible=0)
         self.load_button = pgg.elements.UIButton(relative_rect=pg.Rect(
             (w - 250, h - 30), (250, 30)), text="Load 3D File", manager=self.manager, visible=0)
 
     def applyOptions(self):
+
         set_value("MOVING_SPEED", self.moving_speed_entry.get_text())
         set_value("ROTATION_SPEED", self.rotation_speed_entry.get_text())
 
     def toggle_options(self):
+
         if self.show_options:
+
             self.panel.show()
             self.moving_speed_label.show()
             self.moving_speed_entry.show()
@@ -142,8 +175,21 @@ class SoftwareRender:
             self.rotation_speed_entry.show()
             self.fullscreen_button.show()
             self.load_button.show()
+
+            if get_value("MOVEMENT_FLAG") == "False":
+                self.enable_movement_flag.show()
+            else:
+                self.disable_movement_flag.show()
+
+            if get_value("DRAW_VERTICES") == "False":
+                self.enable_draw_vertices.show()
+            else:
+                self.disable_draw_vertices.show()
+
         else:
+
             self.applyOptions()
+
             self.panel.hide()
             self.moving_speed_label.hide()
             self.moving_speed_entry.hide()
@@ -152,13 +198,26 @@ class SoftwareRender:
             self.fullscreen_button.hide()
             self.load_button.hide()
 
+            if get_value("MOVEMENT_FLAG") == "False":
+                self.enable_movement_flag.hide()
+            else:
+                self.disable_movement_flag.hide()
+
+            if get_value("DRAW_VERTICES") == "False":
+                self.enable_draw_vertices.hide()
+            else:
+                self.disable_draw_vertices.hide()
+
     def draw(self):
+
         self.screen.fill(pg.Color(get_value("BACKGROUND_COLOR")))
         self.object.draw()
         self.manager.draw_ui(self.screen)
 
     def run(self):
+
         while self.is_running:
+
             self.delta = self.clock.tick(self.FPS)/1000.0
             self.fonts = self.create_fonts([32, 20, 16, 8])
 
@@ -168,61 +227,101 @@ class SoftwareRender:
 
             events = pg.event.get()
             for event in events:
+
                 if event.type == pg.QUIT:
+
                     self.is_running = False
                     exit()
 
                 if event.type == pg.VIDEORESIZE:
+
                     self.manager = pgg.UIManager(
                         (event.w, event.h), "resources/theme.json")
+
                     self.show_options = False
                     self.file_dialog = None
+
                     self.create_layout()
 
                 if event.type == pgg.UI_BUTTON_PRESSED:
+
                     if event.ui_element == self.options:
+
                         self.show_options = not self.show_options
                         self.toggle_options()
 
                     if event.ui_element == self.load_button:
+
                         self.file_dialog = pgg.windows.UIFileDialog(pg.Rect(
                             160, 50, 440, 500), self.manager, window_title="Load 3D Object (.obj)",
                             initial_file_path="./resources/", allow_existing_files_only=True)
                         self.load_button.disable()
 
                     if event.ui_element == self.fullscreen_button:
-                        print(self.is_fullscreen)
+
                         if self.is_fullscreen == "False":
+
                             self.screen = pg.display.set_mode(
                                 (0, 0), pg.FULLSCREEN)
                             self.manager = pgg.UIManager(
                                 (self.monitor.width, self.monitor.height), "resources/theme.json")
+
                             set_value("FULLSCREEN", "True")
                             self.is_fullscreen = "True"
+
                         elif self.is_fullscreen == "True":
+
                             self.screen = pg.display.set_mode(
                                 self.RESOLUTION, pg.RESIZABLE)
                             self.manager = pgg.UIManager(
                                 (self.RESOLUTION), "resources/theme.json")
+
                             set_value("FULLSCREEN", "False")
                             self.is_fullscreen = "False"
+
                         self.show_options = False
                         self.file_dialog = None
+
+                        self.create_layout()
+
+                    if event.ui_element == self.enable_movement_flag:
+
+                        set_value("MOVEMENT_FLAG", "True")
+                        self.create_layout()
+
+                    if event.ui_element == self.disable_movement_flag:
+
+                        set_value("MOVEMENT_FLAG", "False")
+                        self.create_layout()
+
+                    if event.ui_element == self.enable_draw_vertices:
+
+                        set_value("DRAW_VERTICES", "True")
+                        self.create_layout()
+
+                    if event.ui_element == self.disable_draw_vertices:
+
+                        set_value("DRAW_VERTICES", "False")
                         self.create_layout()
 
                 if event.type == pg.KEYUP:
+
                     if event.key == pg.K_o:
+
                         self.show_options = not self.show_options
                         self.toggle_options()
 
                 if event.type == pgg.UI_FILE_DIALOG_PATH_PICKED:
+
                     f_path = create_resource_path(event.text)
                     set_value("FILE", f_path)
                     self.object = self.get_object_from_file(
                         str(get_value("FILE")))
 
                 if event.type == pgg.UI_WINDOW_CLOSE:
+
                     if event.ui_element == self.file_dialog:
+
                         self.load_button.enable()
                         self.file_dialog = None
 
@@ -232,3 +331,7 @@ class SoftwareRender:
             self.clock.tick(self.FPS)
 
             pg.display.flip()
+
+
+app = SoftwareRender()
+app.run()
